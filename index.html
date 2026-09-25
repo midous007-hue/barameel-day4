@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>BARAMEEL RUN</title><link rel="stylesheet" href="./styles.css"></head>
+<body><main class="stage" style="--ratio:.5641;--ar:942/1670"><img id="art" class="base" src="./assets/screen01-start.png" alt="BARAMEEL RUN">
+<input id="nickname" class="nickname-input" maxlength="24" autocomplete="nickname" autocapitalize="words" spellcheck="false" placeholder="TYPE YOUR NICKNAME" aria-label="Nickname">
+<button id="start" class="hotspot" aria-label="Start Run"></button></main>
+<script src="./app.js"></script><script>
+const input=document.getElementById("nickname"),start=document.getElementById("start");
+input.value=BR.state.nickname||"";
+input.addEventListener("input",()=>BR.setNickname(input.value));
+start.onclick=()=>{if(!input.value.trim()){input.focus();BR.play("error");return;}BR.setNickname(input.value);BR.play("confirm");BR.go("screen02.html");};
+BR.preloadAll(["./assets/screen02-brona.png","./assets/screen02-chiller.png","./assets/screen02-dreamer.png","./assets/screen02-racer.png","./assets/screen02-rookie.png","./assets/screen02-skater.png"]);
+</script></body></html>

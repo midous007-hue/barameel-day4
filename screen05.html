@@ -1,0 +1,37 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>BARAMEEL RUN — Scan the QR Checkpoint</title><link rel="stylesheet" href="./styles.css"></head>
+<body><main class="scan-stage" style="--ratio:.5772;--ar:953/1651"><img id="scanBg" class="scan-art" src="./assets/screen05-scanner.png" alt="Scan the checkpoint">
+<button id="back" class="scan-back-hotspot" aria-label="Back"></button>
+<div class="camera-window"><video id="video" playsinline muted></video><div id="scanLine"></div></div>
+<button id="open" class="scan-open-hotspot" aria-label="Open camera and scan QR"></button>
+<div id="scanMessage" class="scan-message">READY</div><div id="successFlash" class="success-flash"></div></main>
+<script src="./app.js"></script><script>
+const video=document.getElementById("video"),open=document.getElementById("open"),back=document.getElementById("back"),line=document.getElementById("scanLine"),msg=document.getElementById("scanMessage"),flash=document.getElementById("successFlash");
+let stream=null,detector=null,raf=0,done=false;
+back.onclick=()=>{BR.play("back");BR.go("screen04.html")};
+open.onclick=startCamera;
+async function startCamera(){
+  BR.play("scan");msg.textContent="SCANNING…";
+  if(!navigator.mediaDevices?.getUserMedia){BR.play("error");msg.textContent="CAMERA NOT SUPPORTED";return;}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{width:{ideal:1080},height:{ideal:1080},facingMode:{ideal:"environment"}}});
+    video.srcObject=stream;await video.play();video.style.display="block";line.classList.add("on");
+    if("BarcodeDetector" in window){try{const f=await BarcodeDetector.getSupportedFormats();if(f.includes("qr_code"))detector=new BarcodeDetector({formats:["qr_code"]});}catch(e){}}
+    if(detector)scanLoop(); else msg.textContent="CAMERA READY — SCAN A QR";
+  }catch(e){BR.play("error");msg.textContent="ALLOW CAMERA ACCESS"; }
+}
+async function scanLoop(){
+  if(done||!detector)return;
+  try{const codes=await detector.detect(video);if(codes?.length){handleQR(codes[0].rawValue||"");return;}}catch(e){}
+  raf=requestAnimationFrame(scanLoop);
+}
+function handleQR(raw){
+  if(done)return;done=true;cancelAnimationFrame(raf);stream?.getTracks().forEach(t=>t.stop());line.classList.remove("on");
+  const parsed=BR.parseQR(raw);BR.collect(parsed.collection,parsed.piece);BR.addPoints(100);
+  BR.play("success");
+  BR.startRewardTransition(parsed.piece);
+  flash.classList.add("on");
+  document.body.classList.add("scan-complete");
+  setTimeout(()=>location.href=`./screen06.html?collection=${encodeURIComponent(parsed.collection)}&piece=${parsed.piece}`,900);
+}
+window.addEventListener("pagehide",()=>stream?.getTracks().forEach(t=>t.stop()));
+</script></body></html>

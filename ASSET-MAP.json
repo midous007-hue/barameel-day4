@@ -1,0 +1,45 @@
+{
+  "screen01": "assets/screen01-start.png",
+  "screen05": "assets/screen05-scanner.png",
+  "screen06": "assets/screen06-puzzle.png",
+  "runners": {
+    "brona": {
+      "screen02": "assets/screen02-brona.png",
+      "screen03": "assets/screen03-brona.png",
+      "screen04": "assets/screen04-brona.png"
+    },
+    "chiller": {
+      "screen02": "assets/screen02-chiller.png",
+      "screen03": "assets/screen03-chiller.png",
+      "screen04": "assets/screen04-chiller.png"
+    },
+    "dreamer": {
+      "screen02": "assets/screen02-dreamer.png",
+      "screen03": "assets/screen03-dreamer.png",
+      "screen04": "assets/screen04-dreamer.png"
+    },
+    "racer": {
+      "screen02": "assets/screen02-racer.png",
+      "screen03": "assets/screen03-racer.png",
+      "screen04": "assets/screen04-racer.png"
+    },
+    "rookie": {
+      "screen02": "assets/screen02-rookie.png",
+      "screen03": "assets/screen03-rookie.png",
+      "screen04": "assets/screen04-rookie.png"
+    },
+    "skater": {
+      "screen02": "assets/screen02-skater.png",
+      "screen03": "assets/screen03-skater.png",
+      "screen04": "assets/screen04-skater.png"
+    }
+  },
+  "collection01": {
+    "master": "assets/collections/collection01/collection01-master.png",
+    "pieces": "assets/collections/collection01/pieces/collection01-piece-XX.png"
+  },
+  "audio": {
+    "reward": "audio/reward-levelup.mp3"
+  },
+  "testQR": "assets/test-qr-piece-04.png"
+}
