@@ -20,3 +20,6 @@ BARAMEEL RUN — ROOT UPDATE v18
 
 
 V19 SCREEN05 FIX: camera frame aligned to printed QR frame; rear camera; native BarcodeDetector + jsQR fallback; larger back/open hotspots; successful scan stores exact collection/piece and exposes a continue-to-puzzle hotspot while preserving automatic navigation.
+
+
+Screen 05 v20 review fixes: mobile-safe tap handlers for Back/Open Camera/Continue, Back uses direct link fallback, camera preview aligned to the printed white QR frame interior, cache bumped to v20.
