@@ -20,7 +20,7 @@ open.addEventListener("pointerup",openCamera,{passive:false});
 open.addEventListener("touchend",openCamera,{passive:false});
 open.addEventListener("click",openCamera,{passive:false});
 puzzleHotspot.addEventListener("pointerup",function(e){e.preventDefault();e.stopPropagation();if(done)goPuzzle()},{passive:false});
-function goPuzzle(){const tr=JSON.parse(localStorage.getItem("barameelLastQR")||"null");if(tr&&tr.collection&&tr.piece)location.replace(`./screen06.html?collection=${encodeURIComponent(tr.collection)}&piece=${encodeURIComponent(tr.piece)}`);else location.replace("./screen06.html");}
+function goPuzzle(){const tr=JSON.parse(localStorage.getItem("barameelLastQR")||"null");if(tr&&tr.collection&&tr.piece)location.replace(`./screen06.html?collection=${encodeURIComponent(tr.collection)}&image=${encodeURIComponent(tr.image||"image10")}&piece=${encodeURIComponent(tr.piece)}`);else location.replace("./screen06.html");}
 async function startCamera(){
  if(stream||opening)return; opening=true; done=false; puzzleHotspot.hidden=true; showStatus("");
  if(!window.isSecureContext){opening=false;showStatus("CAMERA NEEDS HTTPS");safeSound("error");return;}
@@ -38,7 +38,21 @@ async function startCamera(){
 }
 async function scanNative(){if(done||!detector)return;try{const codes=await detector.detect(video);if(codes&&codes.length){handleQR(codes[0].rawValue||"");return}}catch(e){}raf=requestAnimationFrame(scanNative)}
 function scanJsQr(){if(done)return;if(!window.jsQR){raf=requestAnimationFrame(scanJsQr);return}if(video.readyState>=2&&video.videoWidth){canvas.width=video.videoWidth;canvas.height=video.videoHeight;ctx.drawImage(video,0,0,canvas.width,canvas.height);const image=ctx.getImageData(0,0,canvas.width,canvas.height);const code=window.jsQR(image.data,image.width,image.height,{inversionAttempts:"attemptBoth"});if(code&&code.data){handleQR(code.data);return}}raf=requestAnimationFrame(scanJsQr)}
-function handleQR(raw){if(done)return;const parsed=BR.parseQR(raw);if(!parsed){safeSound("error");return}done=true;cancelAnimationFrame(raf);stopCamera();BR.collect(parsed.collection,parsed.piece);BR.addPoints(100);localStorage.setItem("barameelLastQR",JSON.stringify({collection:parsed.collection,piece:parsed.piece,raw:raw,at:Date.now()}));safeSound("success");try{BR.startRewardTransition(parsed.piece)}catch(e){}flash.classList.add("on");puzzleHotspot.hidden=false;setTimeout(goPuzzle,900)}
+async function handleQR(raw){if(done)return;const parsed=BR.parseQR(raw);if(!parsed){safeSound("error");showStatus("INVALID BARAMEEL QR");return}done=true;cancelAnimationFrame(raf);stopCamera();
+ try{
+   const cfg=await BR.fetchCollection(parsed.collection);
+   const image=cfg.images.find(x=>x.imageId===parsed.image);
+   const piece=image&&image.pieces.find(x=>Number(x.piece_number)===Number(parsed.piece));
+   if(!image||!piece)throw new Error("unknown piece");
+   const isNew=BR.collect(parsed.collection,parsed.image,parsed.piece);
+   const points=isNew?Number(piece.points||0):0;
+   if(isNew&&points>0)BR.addPoints(points);
+   const reward={collection:parsed.collection,image:parsed.image,piece:Number(parsed.piece),points,duplicate:!isNew,raw,at:Date.now(),imageNumber:image.imageNumber};
+   BR.setLastReward(reward);
+   localStorage.setItem("barameelLastQR",JSON.stringify(reward));
+   if(isNew){safeSound("success");try{BR.startRewardTransition(reward)}catch(e){}}else{safeSound("tap");}
+   flash.classList.add("on");puzzleHotspot.hidden=false;setTimeout(goPuzzle,850);
+ }catch(e){done=false;safeSound("error");showStatus("QR NOT IN COLLECTION");}}
 function stopCamera(){cancelAnimationFrame(raf);raf=0;opening=false;if(stream){stream.getTracks().forEach(function(t){try{t.stop()}catch(e){}});stream=null}try{video.pause()}catch(e){}video.srcObject=null;video.style.display="none";line.classList.remove("on")}
 window.addEventListener("pagehide",stopCamera);
 })();
