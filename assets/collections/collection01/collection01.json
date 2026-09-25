@@ -1,19 +1,90 @@
 {
   "collectionId": "collection01",
-  "collectionName": "",
-  "grid": "3x3",
-  "totalPieces": 9,
+  "collectionNumber": 1,
+  "collectionName": "ALEXANDRIA NIGHTS",
   "master": "collection01-master.png",
-  "pieces": {
-    "01": "pieces/collection01-piece-01.png",
-    "02": "pieces/collection01-piece-02.png",
-    "03": "pieces/collection01-piece-03.png",
-    "04": "pieces/collection01-piece-04.png",
-    "05": "pieces/collection01-piece-05.png",
-    "06": "pieces/collection01-piece-06.png",
-    "07": "pieces/collection01-piece-07.png",
-    "08": "pieces/collection01-piece-08.png",
-    "09": "pieces/collection01-piece-09.png"
+  "grid": {
+    "rows": 3,
+    "columns": 3,
+    "pieces": 9
   },
-  "qrTest": "QR-piece-04-test.png"
+  "sourceDimensions": {
+    "width": 1122,
+    "height": 1402
+  },
+  "splitMethod": "exact_3x3_grid",
+  "pieces": [
+    {
+      "piece": 1,
+      "row": 1,
+      "column": 1,
+      "file": "pieces/collection01-piece-01.png",
+      "width": 374,
+      "height": 467
+    },
+    {
+      "piece": 2,
+      "row": 1,
+      "column": 2,
+      "file": "pieces/collection01-piece-02.png",
+      "width": 374,
+      "height": 467
+    },
+    {
+      "piece": 3,
+      "row": 1,
+      "column": 3,
+      "file": "pieces/collection01-piece-03.png",
+      "width": 374,
+      "height": 467
+    },
+    {
+      "piece": 4,
+      "row": 2,
+      "column": 1,
+      "file": "pieces/collection01-piece-04.png",
+      "width": 374,
+      "height": 468
+    },
+    {
+      "piece": 5,
+      "row": 2,
+      "column": 2,
+      "file": "pieces/collection01-piece-05.png",
+      "width": 374,
+      "height": 468
+    },
+    {
+      "piece": 6,
+      "row": 2,
+      "column": 3,
+      "file": "pieces/collection01-piece-06.png",
+      "width": 374,
+      "height": 468
+    },
+    {
+      "piece": 7,
+      "row": 3,
+      "column": 1,
+      "file": "pieces/collection01-piece-07.png",
+      "width": 374,
+      "height": 467
+    },
+    {
+      "piece": 8,
+      "row": 3,
+      "column": 2,
+      "file": "pieces/collection01-piece-08.png",
+      "width": 374,
+      "height": 467
+    },
+    {
+      "piece": 9,
+      "row": 3,
+      "column": 3,
+      "file": "pieces/collection01-piece-09.png",
+      "width": 374,
+      "height": 467
+    }
+  ]
 }
