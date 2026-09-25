@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>BARAMEEL RUN — Puzzle Piece</title><link rel="stylesheet" href="./styles.css"></head>
+<body><main class="puzzle-stage" style="--ratio:.57853;--ar:954/1649"><img class="puzzle-art" src="./assets/screen06-puzzle.png" alt="Puzzle progress">
+<div id="collectionNo" class="puzzle-input field-one"></div><div id="collectionName" class="puzzle-input field-two"></div>
+<div id="grid" class="puzzle-grid"></div><div id="pieceInfo" class="puzzle-input field-three"></div><div id="progress" class="progress-grid"></div>
+<button id="back" class="puzzle-back" aria-label="Back"></button><button id="nice" class="puzzle-nice" aria-label="Nice one"></button><div id="rewardGlow"></div></main>
+<script src="./app.js"></script><script>
+(async()=>{
+  const params=new URLSearchParams(location.search),collection=params.get('collection')||'collection01',piece=Number(params.get('piece')||0);
+  const no=document.getElementById('collectionNo'),name=document.getElementById('collectionName'),info=document.getElementById('pieceInfo'),grid=document.getElementById('grid'),progress=document.getElementById('progress');
+  let cfg={collectionNumber:Number(collection.replace(/\\D/g,''))||1,collectionName:'ALEXANDRIA NIGHTS',grid:{rows:3,columns:3,pieces:9}};
+  try{const r=await fetch(`./assets/collections/${collection}/${collection}.json`);if(r.ok)cfg=await r.json();}catch(e){}
+  const total=Number(cfg.grid?.pieces)||9;
+  const collected=(BR.state.collected[collection]||[]).map(String).map(x=>x.padStart(2,'0')).sort((a,b)=>Number(a)-Number(b));
+  no.textContent=`COLLECTION ${String(cfg.collectionNumber||1).padStart(2,'0')}`;
+  name.textContent=cfg.collectionName||'ALEXANDRIA NIGHTS';
+  info.textContent=piece?`PIECE ${String(piece).padStart(2,'0')}  •  +100 POINTS`:`${collected.length}/${total} PIECES`;
+  for(let i=1;i<=total;i++){
+    const p=String(i).padStart(2,'0'),d=document.createElement('div');d.className='puzzle-piece';
+    if(collected.includes(p)){const im=document.createElement('img');im.src=`./assets/collections/${collection}/pieces/${collection}-piece-${p}.png`;im.alt=`Piece ${p}`;d.appendChild(im);}
+    grid.appendChild(d);
+  }
+  for(let i=1;i<=7;i++){const d=document.createElement('div');d.className='progress-cell'+(i<=Math.min(7,collected.length)?' on':'');progress.appendChild(d);}
+  document.getElementById('back').onclick=()=>{BR.backSound();BR.go('screen05.html')};
+  document.getElementById('nice').onclick=()=>{BR.confirmSound();BR.go('screen04.html')};
+  const tr=JSON.parse(localStorage.getItem('barameelRewardTransition')||'null');
+  const elapsed=tr?.startedAt?Math.max(0,(Date.now()-tr.startedAt)/1000):0;
+  const audio=BR.playRewardFrom(Math.min(elapsed,1.5));
+  document.getElementById('rewardGlow').classList.add('on');
+  window.addEventListener('pointerdown',()=>{if(audio.paused)BR.playRewardFrom(Math.min(elapsed,1.5));},{once:true,passive:true});
+  setTimeout(()=>document.getElementById('rewardGlow').classList.remove('on'),700);
+})();
+</script></body></html>
