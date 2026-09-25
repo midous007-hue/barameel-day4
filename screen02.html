@@ -1,0 +1,7 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Choose Runner</title><link rel="stylesheet" href="styles.css"></head><body><main class="app"><section class="screen"><img id="art" class="art" alt=""><button id="back" class="hit" aria-label="Back"></button><div class="flash" id="flash"></div></section></main><script src="app.js"></script><script>
+const runnerFiles={brona:'screen02-brona.png',chiller:'screen02-chiller.png',dreamer:'screen02-dreamer.png',racer:'screen02-racer.png',rookie:'screen02-rookie.png',skater:'screen02-skater.png'};
+const art=document.getElementById('art'); let current=BARAMEEL.state.runner||'brona'; art.src='assets/'+runnerFiles[current];
+const zones={rookie:[1,21,15,18],skater:[18,21,15,18],brona:[35,21,15,18],racer:[52,21,15,18],chiller:[69,21,15,18],dreamer:[86,21,12,18]};
+Object.entries(zones).forEach(([r,z])=>{const b=document.createElement('button');b.className='hit';b.style.cssText=`left:${z[0]}%;top:${z[1]}%;width:${z[2]}%;height:${z[3]}%`;b.onclick=()=>{BARAMEEL.setRunner(r);current=r;art.src='assets/'+runnerFiles[r];BARAMEEL.play('select');BARAMEEL.pulse(art)};document.querySelector('.screen').appendChild(b)});
+document.getElementById('back').style.cssText='left:3%;top:2%;width:20%;height:7%';document.getElementById('back').onclick=()=>{BARAMEEL.play('back');location.href='index.html'};
+</script></body></html>

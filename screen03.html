@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Runner Confirmed</title><link rel="stylesheet" href="styles.css"></head><body><main class="app"><section class="screen"><img id="art" class="art" alt=""><button id="back" class="hit"></button><button id="run" class="hit"></button><div class="flash" id="flash"></div></section></main><script src="app.js"></script><script>
+const files={brona:'screen03-brona.png',chiller:'screen03-chiller.png',dreamer:'screen03-dreamer.png',racer:'screen03-racer.png',rookie:'screen03-rookie.png',skater:'screen03-skater.png'};
+document.getElementById('art').src='assets/'+files[BARAMEEL.state.runner||'brona'];
+document.getElementById('back').style.cssText='left:3%;top:2%;width:20%;height:7%';
+document.getElementById('run').style.cssText='left:49%;top:68%;width:44%;height:12%';
+back.onclick=()=>{BARAMEEL.play('back');location.href='screen02.html'};
+run.onclick=()=>{BARAMEEL.play('confirm');location.href='screen04.html'};
+</script></body></html>

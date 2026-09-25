@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Puzzle Piece</title><link rel="stylesheet" href="styles.css"></head><body><main class="app"><section class="screen"><img class="art" src="assets/screen06-puzzle.png" alt=""><div id="pieces" style="position:absolute;z-index:15;left:43%;top:41%;width:52%;height:29%;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:0;pointer-events:none"></div><div id="data" style="position:absolute;z-index:16;left:43%;top:28%;width:52%;height:10%;color:#ffd02a;font-weight:900;text-align:center;display:flex;flex-direction:column;justify-content:center;text-shadow:0 2px 3px #000"></div><button id="back" class="hit"></button><button id="nice" class="hit"></button><div class="flash" id="flash"></div></section></main><script src="app.js"></script><script>
+const c='collection01', collected=BARAMEEL.state.collected[c]||[];
+const grid=document.getElementById('pieces');
+for(let i=1;i<=9;i++){const d=document.createElement('div');d.style.cssText='position:relative;overflow:hidden;border:1px solid rgba(255,208,42,.28)';const p=String(i).padStart(2,'0');if(collected.includes(p)){const im=document.createElement('img');im.src=`assets/collections/collection01/pieces/collection01-piece-${p}.png`;im.style.cssText='width:100%;height:100%;object-fit:cover';d.appendChild(im)}grid.appendChild(d)}
+document.getElementById('data').innerHTML=`<div>COLLECTION 01</div><div>${collected.length} / 9 PIECES</div>`;
+document.getElementById('back').style.cssText='left:3%;top:2%;width:14%;height:7%';
+document.getElementById('nice').style.cssText='left:40%;top:79%;width:56%;height:10%';
+back.onclick=()=>{BARAMEEL.play('back');location.href='screen05.html'};
+nice.onclick=()=>{BARAMEEL.play('tap');location.href='screen04.html'};
+</script></body></html>

@@ -1,0 +1,19 @@
+{
+  "collectionId": "collection01",
+  "collectionName": "",
+  "grid": "3x3",
+  "totalPieces": 9,
+  "master": "collection01-master.png",
+  "pieces": {
+    "01": "pieces/collection01-piece-01.png",
+    "02": "pieces/collection01-piece-02.png",
+    "03": "pieces/collection01-piece-03.png",
+    "04": "pieces/collection01-piece-04.png",
+    "05": "pieces/collection01-piece-05.png",
+    "06": "pieces/collection01-piece-06.png",
+    "07": "pieces/collection01-piece-07.png",
+    "08": "pieces/collection01-piece-08.png",
+    "09": "pieces/collection01-piece-09.png"
+  },
+  "qrTest": "QR-piece-04-test.png"
+}

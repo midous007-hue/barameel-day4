@@ -1,0 +1,53 @@
+{
+  "screens": {
+    "screen01": [
+      "assets/screen01-start.png"
+    ],
+    "screen02": [
+      "assets/screen02-brona.png",
+      "assets/screen02-chiller.png",
+      "assets/screen02-dreamer.png",
+      "assets/screen02-racer.png",
+      "assets/screen02-rookie.png",
+      "assets/screen02-skater.png"
+    ],
+    "screen03": [
+      "assets/screen03-brona.png",
+      "assets/screen03-chiller.png",
+      "assets/screen03-dreamer.png",
+      "assets/screen03-racer.png",
+      "assets/screen03-rookie.png",
+      "assets/screen03-skater.png"
+    ],
+    "screen04": [
+      "assets/screen04-brona.png",
+      "assets/screen04-chiller.png",
+      "assets/screen04-dreamer.png",
+      "assets/screen04-racer.png",
+      "assets/screen04-rookie.png",
+      "assets/screen04-skater.png"
+    ],
+    "screen05": [
+      "assets/screen05-scanner.png"
+    ],
+    "screen06": [
+      "assets/screen06-puzzle.png"
+    ]
+  },
+  "collection01": {
+    "master": "assets/collections/collection01/collection01-master.png",
+    "config": "assets/collections/collection01/collection01.json",
+    "testQR": "assets/collections/collection01/QR-piece-04-test.png",
+    "pieces": [
+      "assets/collections/collection01/pieces/collection01-piece-01.png",
+      "assets/collections/collection01/pieces/collection01-piece-02.png",
+      "assets/collections/collection01/pieces/collection01-piece-03.png",
+      "assets/collections/collection01/pieces/collection01-piece-04.png",
+      "assets/collections/collection01/pieces/collection01-piece-05.png",
+      "assets/collections/collection01/pieces/collection01-piece-06.png",
+      "assets/collections/collection01/pieces/collection01-piece-07.png",
+      "assets/collections/collection01/pieces/collection01-piece-08.png",
+      "assets/collections/collection01/pieces/collection01-piece-09.png"
+    ]
+  }
+}

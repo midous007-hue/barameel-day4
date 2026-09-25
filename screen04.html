@@ -1,0 +1,13 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BARAMEEL RUN</title><link rel="stylesheet" href="styles.css"></head><body><main class="app"><section class="screen"><img id="art" class="art" alt=""><button id="back" class="hit"></button><button id="scan" class="hit"></button><button id="how" class="hit"></button><button id="use" class="hit"></button><div class="flash" id="flash"></div><div class="toast" id="toast"></div></section></main><script src="app.js"></script><script>
+const files={brona:'screen04-brona.png',chiller:'screen04-chiller.png',dreamer:'screen04-dreamer.png',racer:'screen04-racer.png',rookie:'screen04-rookie.png',skater:'screen04-skater.png'};
+document.getElementById('art').src='assets/'+files[BARAMEEL.state.runner||'brona'];
+const pct=`left:50%;top:0;width:50%;height:50%`; // unused; hotspots below are aligned to the printed controls.
+back.style.cssText='left:3%;top:2%;width:20%;height:7%';
+scan.style.cssText='left:26%;top:72%;width:70%;height:13%';
+how.style.cssText='left:26%;top:85%;width:32%;height:9%';
+use.style.cssText='left:60%;top:85%;width:35%;height:9%';
+back.onclick=()=>{BARAMEEL.play('back');location.href='screen03.html'};
+scan.onclick=()=>{BARAMEEL.play('tap');location.href='screen05.html'};
+how.onclick=()=>{BARAMEEL.play('tap');alert('Walk, discover QR checkpoints, collect points and build your puzzle collection.')};
+use.onclick=()=>{BARAMEEL.play('tap');alert('Rewards and redemption will be connected after the first six screens are verified.')};
+</script></body></html>

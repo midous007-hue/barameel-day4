@@ -1,0 +1,39 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Scan QR</title><link rel="stylesheet" href="styles.css"></head><body><main class="app"><section class="screen"><img class="art" src="assets/screen05-scanner.png" alt=""><button id="back" class="hit"></button><button id="open" class="hit"></button><div id="cam" class="camera-layer"><video id="video" playsinline autoplay muted></video><div class="camera-ui"></div><button id="camClose" class="hit camera-close" aria-label="Close camera"></button></div><div id="flash" class="flash"></div><div id="toast" class="toast"></div></section></main><script src="app.js"></script><script>
+const back=document.getElementById('back'), open=document.getElementById('open'), cam=document.getElementById('cam'), video=document.getElementById('video'), close=document.getElementById('camClose');
+back.style.cssText='left:3%;top:2%;width:14%;height:7%';
+open.style.cssText='left:15%;top:76%;width:78%;height:10%';
+let stream=null, detector=null, raf=0;
+back.onclick=()=>{BARAMEEL.play('back');location.href='screen04.html'};
+async function startCamera(){
+  BARAMEEL.play('scan'); cam.style.display='block';
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    video.srcObject=stream; await video.play();
+    if('BarcodeDetector' in window){
+      try{ detector=new BarcodeDetector({formats:['qr_code']}); }catch(e){detector=null}
+    }
+    if(detector) scanLoop(); else showToast('Camera ready — QR detection depends on browser support.');
+  }catch(e){ cam.style.display='none'; BARAMEEL.play('error'); showToast('Camera permission is required to scan.'); }
+}
+async function scanLoop(){
+  if(!detector||cam.style.display==='none') return;
+  try{
+    const codes=await detector.detect(video);
+    if(codes&&codes.length){handleQR(codes[0].rawValue||'');return;}
+  }catch(e){}
+  raf=requestAnimationFrame(scanLoop);
+}
+function handleQR(raw){
+  if(!raw) return;
+  BARAMEEL.play('reward'); document.getElementById('flash').classList.add('on');
+  // Test QR accepted by URL/query/text: collection01/piece04, piece04, or a URL containing piece-04.
+  const m=raw.match(/collection01[^0-9]*(?:piece[-_ ]?0?([1-9]))?/i)||raw.match(/piece[-_ ]?0?([1-9])/i);
+  const piece=m ? Number(m[1]||4) : 4;
+  BARAMEEL.collect('collection01',String(piece).padStart(2,'0')); BARAMEEL.addPoints(100);
+  stopCamera(); setTimeout(()=>location.href='screen06.html',280);
+}
+function stopCamera(){if(raf)cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;cam.style.display='none'}
+function showToast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.remove('show');void el.offsetWidth;el.classList.add('show')}
+close.onclick=()=>{BARAMEEL.play('back');stopCamera()};
+open.onclick=startCamera;
+</script></body></html>
