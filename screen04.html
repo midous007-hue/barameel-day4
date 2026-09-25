@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>BARAMEEL RUN — Run</title><link rel="stylesheet" href="./styles.css"></head>
+<body><main class="stage" style="--ratio:.5714;--ar:948/1659"><img id="art" class="base art-ready" alt="BARAMEEL RUN run mode"><div id="hotspots"></div></main>
+<script src="./app.js"></script><script>
+const c=BR.selected();document.getElementById("art").src=`./assets/screen04-${c}.png`;const hs=document.getElementById("hotspots");
+function add(css,fn,cls=""){const b=document.createElement("button");b.className="hotspot "+cls;b.style.cssText=css;b.onclick=fn;hs.appendChild(b);}
+add("left:2.5%;top:2.0%;width:18.5%;height:5.4%",()=>{BR.play("back");BR.go("screen03.html")},"back-hotspot");
+add("left:51.0%;top:72.5%;width:46.5%;height:8.8%",()=>{BR.play("scan");BR.go("screen05.html")});
+add("left:51.0%;top:82.2%;width:20.0%;height:7.5%",()=>BR.play("tap"));
+add("left:71.0%;top:82.2%;width:26.0%;height:7.5%",()=>BR.play("tap"));
+BR.preload("./assets/screen05-scanner.png");
+</script></body></html>
