@@ -12,13 +12,13 @@ body{display:grid;place-items:center;padding:0;font-family:Arial,Helvetica,sans-
 #start{left:11.5%;top:84.2%;width:77.2%;height:10.0%}
 /* Screen 05: camera preview sits exactly inside the printed white QR bracket. */
 .scan-stage{background:#061f27;touch-action:manipulation}
-.camera-window{position:absolute;z-index:12;left:51.0%;top:54.25%;width:37.9%;height:18.15%;overflow:hidden;border:0;background:#061f27;pointer-events:none;border-radius:1px}
-#video{width:100%;height:100%;object-fit:cover;display:none;transform:none}#canvas{display:none}
+.camera-window{position:absolute;z-index:12;left:50.9%;top:55.55%;width:35.2%;height:15.95%;overflow:hidden;border:0;background:#061f27;pointer-events:none;border-radius:0}
+#video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;transform:none;border:0;border-radius:0}#canvas{display:none}
 #scanLine{position:absolute;left:5%;right:5%;top:50%;height:3px;background:var(--yellow);box-shadow:0 0 12px var(--yellow);opacity:0}.on{opacity:1!important;animation:scanline 1.3s linear infinite}
 @keyframes scanline{0%{transform:translateY(-70px);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(70px);opacity:0}}
 .scan-back-hotspot{position:absolute;z-index:50;left:2.2%;top:1.2%;width:16%;height:8%;border:0;background:transparent!important;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .scan-open-hotspot{position:absolute;z-index:50;left:15%;top:75.4%;width:79%;height:10.8%;border:0;background:transparent!important;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.scan-message{position:absolute;z-index:20;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none}.scan-puzzle-hotspot{position:absolute;z-index:55;left:15%;top:75.4%;width:79%;height:10.8%;border:0;background:transparent!important;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.scan-message{position:absolute;z-index:70;left:50%;top:70%;transform:translate(-50%,-50%);width:70%;padding:10px 14px;border-radius:12px;background:rgba(6,23,29,.92);color:#f7ecd5;font-weight:900;text-align:center;font-size:clamp(12px,3.2vw,24px);opacity:0;pointer-events:none}.scan-message.show{opacity:1}.scan-puzzle-hotspot{position:absolute;z-index:55;left:15%;top:75.4%;width:79%;height:10.8%;border:0;background:transparent!important;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .success-flash{position:absolute;inset:0;z-index:60;background:radial-gradient(circle,rgba(247,189,39,.65),rgba(217,47,37,.35),transparent 70%);opacity:0;pointer-events:none}
 .success-flash.on{animation:rewardFlash .9s ease both}
 @keyframes rewardFlash{0%{opacity:0;transform:scale(.9)}25%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1.06)}}
