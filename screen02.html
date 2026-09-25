@@ -1,9 +1,0 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Choose Runner</title><link rel="stylesheet" href="styles.css"></head><body><main class="app"><section class="screen"><img id="art" class="art" alt="Choose your runner"><button id="back" class="hit" aria-label="Back"></button><button id="choose" class="hit" aria-label="Choose Your Runner"></button><div class="flash" id="flash"></div></section></main><script src="app.js"></script><script>
-const files={brona:'screen02-brona.png',chiller:'screen02-chiller.png',dreamer:'screen02-dreamer.png',racer:'screen02-racer.png',rookie:'screen02-rookie.png',skater:'screen02-skater.png'};
-const art=document.getElementById('art'), screen=document.querySelector('.screen');let current=BARAMEEL.state.runner||'brona';art.src='assets/'+files[current];
-const zones={rookie:[1,21,15,18],skater:[18,21,15,18],brona:[35,21,15,18],racer:[52,21,15,18],chiller:[69,21,15,18],dreamer:[86,21,12,18]};
-Object.entries(zones).forEach(([r,z])=>{const b=document.createElement('button');b.className='hit';b.setAttribute('aria-label',r);b.style.cssText=`left:${z[0]}%;top:${z[1]}%;width:${z[2]}%;height:${z[3]}%`;b.onclick=()=>{current=r;BARAMEEL.setRunner(r);BARAMEEL.play('select');BARAMEEL.pulse(art)};screen.appendChild(b)});
-// Printed CHOOSE YOUR RUNNER / confirm button: transparent hotspot, no duplicate visible button.
-const choose=document.getElementById('choose');choose.style.cssText='left:8%;top:78%;width:84%;height:13%';choose.onclick=()=>{BARAMEEL.setRunner(current);BARAMEEL.play('confirm');location.href='screen03.html'};
-const back=document.getElementById('back');back.style.cssText='left:3%;top:2%;width:20%;height:7%';back.onclick=()=>{BARAMEEL.play('back');location.href='index.html'};
-</script></body></html>
