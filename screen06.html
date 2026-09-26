@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>BARAMEEL RUN — ALEXANDRIA Collection</title>
+<link rel="preload" as="image" href="./assets/screen06-puzzle.webp" fetchpriority="high">
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -12,25 +13,18 @@
     <source media="(max-width:600px)" srcset="./assets/screen06-puzzle-mobile.webp">
     <img id="collectionArt" src="./assets/screen06-puzzle.webp" alt="ALEXANDRIA collection" fetchpriority="high" decoding="async">
   </picture>
-
   <button id="collectionBack" class="collection-back" aria-label="Back"></button>
-  <select id="collectionSelect" class="collection-select" aria-label="Choose collection">
-    <option value="collection01">ALEXANDRIA</option>
-  </select>
+  <select id="collectionSelect" class="collection-select" aria-label="Choose collection"><option value="collection01">ALEXANDRIA</option></select>
 
-  <!-- The printed 3x3 frame remains part of the artwork. Only discovered pieces are layered inside it. -->
+  <!-- The printed board, dividers and card frames stay in the approved artwork.
+       Only QR-discovered puzzle pieces are rendered as live layers. -->
   <div id="heroGrid" class="hero-grid" aria-label="Current puzzle"></div>
-
   <div id="rewardText" class="reward-text" aria-live="polite"></div>
   <div id="rewardSub" class="reward-sub">POINTS EARNED</div>
-
   <button id="myRewards" class="my-rewards" aria-label="My rewards"></button>
   <button id="scanMore" class="scan-more" aria-label="Scan more"></button>
-
-  <!-- The printed 1–10 cards, numbers and outer frames remain in the artwork. Only discovered pieces are layered inside. -->
   <div id="thumbs" class="collection-thumbs" aria-label="Collection images"></div>
 </main>
-
 <script src="./app.js"></script>
 <script>
 (async function(){
@@ -45,20 +39,21 @@
   const requestedImage=params.get('image')||last?.image||'image01';
 
   let cfg;
-  try{cfg=await BR.fetchCollection(requestedCollection)}
-  catch(e){cfg={collectionId:'collection01',displayName:'ALEXANDRIA',imageCount:10,piecesPerImage:9,images:[]};}
+  try{cfg=await BR.fetchCollection(requestedCollection)}catch(e){
+    console.error(e);
+    cfg={collectionId:'collection01',displayName:'ALEXANDRIA',imageCount:10,piecesPerImage:9,images:[]};
+  }
   const collection=cfg.collectionId||'collection01';
   select.value=collection;
   const imageById=id=>cfg.images.find(x=>x.imageId===id)||cfg.images[0];
   let selectedImage=imageById(requestedImage)||cfg.images[0];
   if(!selectedImage)return;
 
-  const thumbFile=im=>`./${im.thumbnailFile}`;
+  const sourceFile=im=>`./${im.thumbnailFile}`;
   const piecePosition=p=>`${((p-1)%3)*50}% ${Math.floor((p-1)/3)*50}%`;
-  const masterFile=im=>`./${im.masterFile}`;
 
-  function pieceStyle(el, im, p){
-    el.style.backgroundImage=`url("${thumbFile(im)}")`;
+  function applyPieceStyle(el,im,p){
+    el.style.backgroundImage=`url("${sourceFile(im)}")`;
     el.style.backgroundSize='300% 300%';
     el.style.backgroundRepeat='no-repeat';
     el.style.backgroundPosition=piecePosition(p);
@@ -68,16 +63,14 @@
     grid.innerHTML='';
     grid.classList.remove('complete','complete-flash');
     const complete=BR.count(collection,selectedImage.imageId)===9;
-
     for(let p=1;p<=9;p++){
+      const found=BR.hasPiece(collection,selectedImage.imageId,p);
       const cell=document.createElement('div');
-      cell.className='hero-piece'+(BR.hasPiece(collection,selectedImage.imageId,p)?' found':' locked');
-      if(BR.hasPiece(collection,selectedImage.imageId,p)) pieceStyle(cell,selectedImage,p);
+      cell.className='hero-piece '+(found?'found':'locked');
+      if(found)applyPieceStyle(cell,selectedImage,p);
       grid.appendChild(cell);
     }
-
     if(complete){
-      // Keep the 3x3 structure visible. Never swap to a full master image.
       requestAnimationFrame(()=>{
         grid.classList.add('complete');
         void grid.offsetWidth;
@@ -92,24 +85,22 @@
       const wrap=document.createElement('button');
       wrap.type='button';
       wrap.className='collection-thumb '+(im.imageId===selectedImage.imageId?'selected':'');
-      const tg=document.createElement('span');
-      tg.className='thumb-grid';
+      const tg=document.createElement('span'); tg.className='thumb-grid';
       for(let p=1;p<=9;p++){
+        const found=BR.hasPiece(collection,im.imageId,p);
         const c=document.createElement('span');
-        c.className='thumb-piece'+(BR.hasPiece(collection,im.imageId,p)?' found':'');
-        if(BR.hasPiece(collection,im.imageId,p)) pieceStyle(c,im,p);
+        c.className='thumb-piece '+(found?'found':'locked');
+        if(found)applyPieceStyle(c,im,p);
         tg.appendChild(c);
       }
       const count=document.createElement('span');
       count.className='thumb-count';
       count.textContent=`${BR.count(collection,im.imageId)}/9`;
       wrap.append(tg,count);
-      wrap.onclick=()=>{BR.play('tap');selectedImage=im;render();};
+      wrap.onclick=()=>{BR.play('tap');selectedImage=im;renderHero();renderThumbs();};
       thumbs.appendChild(wrap);
     });
   }
-
-  function render(){renderHero();renderThumbs();}
 
   function animateReward(){
     const tr=JSON.parse(localStorage.getItem('barameelRewardTransition')||'null');
@@ -118,31 +109,26 @@
     reward.classList.remove('jackpot');
     rewardSub.textContent='POINTS EARNED';
     if(!amount){reward.textContent='';return;}
-
-    const start=performance.now(), dur=820;
+    const start=performance.now(),dur=780;
     function tick(now){
-      const t=Math.min(1,(now-start)/dur);
-      const e=1-Math.pow(1-t,4);
+      const t=Math.min(1,(now-start)/dur),e=1-Math.pow(1-t,4);
       reward.textContent='+'+Math.round(amount*e).toLocaleString('en-US');
       if(t<1)requestAnimationFrame(tick);
       else{
         reward.textContent='+'+amount.toLocaleString('en-US');
-        reward.classList.remove('jackpot');
-        void reward.offsetWidth;
-        reward.classList.add('jackpot');
+        reward.classList.remove('jackpot'); void reward.offsetWidth; reward.classList.add('jackpot');
       }
     }
     requestAnimationFrame(tick);
   }
 
-  select.onchange=()=>{
-    location.href=`./screen06.html?collection=${encodeURIComponent(select.value)}&image=image01`;
-  };
+  select.onchange=()=>location.href=`./screen06.html?collection=${encodeURIComponent(select.value)}&image=image01`;
   document.getElementById('collectionBack').onclick=()=>{BR.play('back');BR.go('./screen05.html');};
   document.getElementById('scanMore').onclick=()=>{BR.play('confirm');BR.go('./screen05.html');};
   document.getElementById('myRewards').onclick=()=>{BR.play('tap');BR.go('./screen04.html');};
 
-  render();
+  renderHero();
+  renderThumbs();
   animateReward();
 })();
 </script>

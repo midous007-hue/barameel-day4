@@ -151,3 +151,19 @@ body{display:grid;place-items:center;padding:0;font-family:Arial,Helvetica,sans-
 /* Responsive image wrappers */
 .stage>picture{position:absolute;inset:0;width:100%;height:100%;display:block}
 .stage>picture img{width:100%;height:100%;object-fit:fill;display:block}
+/* v25 — collection rendering: live 3x3 pieces only; artwork remains the UI frame */
+.collection-art{display:block;position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.collection-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:center top}
+.hero-grid{left:46.65%;top:32.35%;width:47.9%;height:21.55%;z-index:20;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:0;overflow:hidden;border-radius:11px;pointer-events:none;opacity:1!important}
+.hero-piece{position:relative;overflow:hidden;padding:2px;background-color:transparent;background-repeat:no-repeat;background-size:300% 300%;box-shadow:none;border:0;filter:none;opacity:1}
+.hero-piece.locked{background-image:none!important;filter:none;opacity:1}
+.hero-piece.found{filter:none;opacity:1}
+.hero-grid.complete-flash .hero-piece.found{animation:puzzlePieceFlash .34s ease-in-out 0s 3 both}
+@keyframes puzzlePieceFlash{0%,100%{filter:brightness(1) saturate(1)}45%{filter:brightness(1.58) saturate(1.3)}}
+.collection-thumb{padding:0!important;overflow:hidden!important;background:transparent!important}
+.collection-thumb .thumb-grid{position:absolute;left:9.5%;top:18.5%;width:81%;height:64.5%;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:0;overflow:hidden;pointer-events:none}
+.collection-thumb .thumb-piece{display:block;overflow:hidden;padding:1px;background:transparent;background-repeat:no-repeat;background-size:300% 300%;background-position:center;filter:none;opacity:1}
+.collection-thumb .thumb-piece.locked{background-image:none!important}
+.collection-thumb .thumb-piece.found{filter:none;opacity:1}
+.collection-thumb .thumb-count{right:7%;bottom:4.2%}
+@media (max-width:520px){.hero-grid{left:46.65%;top:32.35%;width:47.9%;height:21.55%}.collection-thumb .thumb-grid{left:9.5%;top:18.5%;width:81%;height:64.5%}}
