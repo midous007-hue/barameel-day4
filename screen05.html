@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>BARAMEEL RUN — Scan the QR Checkpoint</title><link rel="stylesheet" href="./styles.css"><script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script></head>
 <body><main class="scan-stage" style="--ratio:.5772;--ar:953/1651">
-<img id="scanBg" class="scan-art" src="./assets/screen05-scanner.png" alt="Scan the checkpoint">
+<img id="scanBg" class="scan-art" src="./assets/screen05-scanner.webp" fetchpriority="high" decoding="async" alt="Scan the checkpoint">
 <a id="back" class="scan-back-hotspot" href="./screen04.html" aria-label="Back"></a>
 <div class="camera-window"><video id="video" playsinline muted></video><canvas id="canvas" aria-hidden="true"></canvas><div id="scanLine"></div></div>
 <button type="button" id="open" class="scan-open-hotspot" aria-label="Open camera and scan QR"></button>
@@ -47,6 +47,7 @@ async function handleQR(raw){if(done)return;const parsed=BR.parseQR(raw);if(!par
    const isNew=BR.collect(parsed.collection,parsed.image,parsed.piece);
    const points=isNew?Number(piece.points||0):0;
    if(isNew&&points>0)BR.addPoints(points);
+   if(isNew)BR.addCheckpoint();
    const reward={collection:parsed.collection,image:parsed.image,piece:Number(parsed.piece),points,duplicate:!isNew,raw,at:Date.now(),imageNumber:image.imageNumber};
    BR.setLastReward(reward);
    localStorage.setItem("barameelLastQR",JSON.stringify(reward));

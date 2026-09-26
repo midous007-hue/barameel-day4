@@ -71,3 +71,51 @@ body{display:grid;place-items:center;padding:0;font-family:Arial,Helvetica,sans-
 .thumb-count{position:absolute;right:8%;bottom:5%;z-index:2;color:#f7ecd5;font-family:"Arial Black",Impact,sans-serif;font-size:clamp(9px,2.4vw,22px);font-weight:900;text-shadow:2px 2px 0 #000;pointer-events:none}
 .page-leave{animation:pageLeave .18s ease both}@keyframes pageLeave{to{opacity:.7;transform:scale(.99)}}
 @media (max-width:520px){.collection-select{font-size:clamp(11px,3.4vw,18px)}.thumb-count{font-size:clamp(8px,2.2vw,15px)}.collection-thumb{padding:5% 5% 8%}}
+/* v23 performance + puzzle presentation corrections */
+.collection-stage{contain:layout paint;}
+.collection-art{content-visibility:auto;}
+.hero-grid{left:46.65%;top:32.35%;width:47.9%;height:21.55%;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:0;border-radius:11px;transition:opacity .2s ease}
+.hero-grid.complete-hidden{opacity:0}
+.hero-piece{background:none!important;box-shadow:none;padding:2px;overflow:hidden}
+.hero-piece.locked{filter:none;opacity:1}
+.hero-piece img{display:block;width:100%;height:100%;object-fit:fill;border-radius:4px}
+.hero-master{left:46.65%;top:32.35%;width:47.9%;height:21.55%;object-fit:fill;border-radius:11px;opacity:0;transition:opacity .22s ease;filter:none}
+.hero-master.show{opacity:1}
+.hero-master.complete-flash{animation:completeImageFlash 1.65s ease-out 1 both}
+@keyframes completeImageFlash{
+  0%,100%{filter:brightness(1) saturate(1)}
+  12%{filter:brightness(1.65) saturate(1.3)}
+  24%{filter:brightness(1) saturate(1)}
+  36%{filter:brightness(1.65) saturate(1.3)}
+  48%{filter:brightness(1) saturate(1)}
+  60%{filter:brightness(1.55) saturate(1.25)}
+  72%{filter:brightness(1) saturate(1)}
+}
+/* Reward value is dynamic; the artwork keeps the star/box/POINTS styling. */
+.reward-text{left:57.5%;top:55.1%;width:32.0%;height:5.0%;font-size:clamp(27px,6.3vw,60px);font-style:italic;letter-spacing:-.035em;color:#ffd34b;text-shadow:3px 3px 0 #071a20,-2px -1px 0 #e44a16,0 0 9px rgba(247,189,39,.45);}
+.reward-sub{left:62.0%;top:59.15%;width:23.0%;height:3.0%;font-family:"Arial Black",Impact,sans-serif;font-size:clamp(13px,3.0vw,28px);font-style:italic;color:#f7ecd5;letter-spacing:-.02em;text-shadow:2px 2px 0 #071a20;}
+.reward-text.jackpot{animation:jackpotFinal .78s cubic-bezier(.2,.9,.25,1) both}
+@keyframes jackpotFinal{0%{transform:scale(1)}55%{transform:scale(1.18);filter:brightness(1.45)}100%{transform:scale(1)}}
+.my-rewards,.scan-more{position:absolute;z-index:60;border:0;background:transparent;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.my-rewards{left:43.5%;top:62.2%;width:24.5%;height:6.7%}
+.scan-more{left:68.5%;top:62.2%;width:28.0%;height:6.7%}
+/* The printed 1–10 cards remain part of the master artwork. Only found pieces are added as a thin image layer. */
+.collection-thumbs{left:1.7%;top:69.2%;width:96.6%;height:25.9%;column-gap:1.05%;row-gap:1.0%;}
+.collection-thumb{padding:0;overflow:hidden;}
+.collection-thumb .thumb-grid{position:absolute;left:9.5%;top:18.5%;width:81.0%;height:64.5%;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:0;pointer-events:none;overflow:hidden}
+.collection-thumb .thumb-piece{display:block;overflow:hidden;padding:1px;background:transparent}
+.collection-thumb .thumb-piece img{position:static;width:100%;height:100%;object-fit:fill;display:block;border-radius:0;filter:none;opacity:1;box-shadow:none;transform:none}
+.collection-thumb.selected .thumb-grid{filter:drop-shadow(0 0 2px rgba(247,189,39,.35))}
+.collection-thumb.locked .thumb-grid{filter:none}
+.collection-thumb .thumb-count{right:7%;bottom:4.2%;}
+.collection-thumb .thumb-number{display:none}
+/* No visible loading layer: the page is immediately interactive while the optimized art decodes. */
+/* Screen 04 live player stats */
+.run-stats{position:absolute;inset:0;z-index:22;pointer-events:none}
+.run-stat{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;color:#071a20;font-family:"Arial Black",Impact,sans-serif;font-weight:900;line-height:1;text-shadow:1px 1px 0 rgba(255,255,255,.18);white-space:nowrap}
+.run-stat.points{left:65.0%;top:48.2%;width:25.0%;height:4.2%;font-size:clamp(15px,4.2vw,38px)}
+.run-stat.marks{left:65.0%;top:54.0%;width:25.0%;height:4.2%;font-size:clamp(15px,4.2vw,38px);color:#f7ecd5}
+.run-stat.weekly{left:65.0%;top:59.9%;width:25.0%;height:4.0%;font-size:clamp(13px,3.7vw,34px);color:#f7ecd5}
+.checkpoint-dots{position:absolute;left:63.4%;top:65.7%;width:28.0%;height:3.2%;display:flex;align-items:center;justify-content:space-between;padding:0 1.5%}
+.checkpoint-dot{width:8.4%;aspect-ratio:1;border:2px solid #f7ecd5;border-radius:50%;background:transparent;box-shadow:0 1px 0 rgba(0,0,0,.5)}
+.checkpoint-dot.on{background:#f7bd27;border-color:#071a20;box-shadow:0 0 7px rgba(247,189,39,.65)}

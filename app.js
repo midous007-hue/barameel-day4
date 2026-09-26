@@ -18,6 +18,7 @@ function save(){localStorage.setItem("barameelRunState",JSON.stringify(state));}
 function setRunner(r){if(RUNNERS.includes(r)){state.runner=r;save();}}
 function setNickname(n){state.nickname=(n||"").slice(0,24);save();}
 function addPoints(n){state.points=(Number(state.points)||0)+(Number(n)||0);state.weeklyPoints=(Number(state.weeklyPoints)||0)+(Number(n)||0);save();}
+function addCheckpoint(){state.checkpoints=(Number(state.checkpoints)||0)+1;save();}
 function collect(c,image,p){if(!state.collected[c])state.collected[c]={};if(!state.collected[c][image])state.collected[c][image]=[];p=String(p).padStart(2,"0");if(!state.collected[c][image].includes(p)){state.collected[c][image].push(p);save();return true;}return false;}
 function selected(){return state.runner||"brona";}
 function pieces(c,image){return(state.collected[c]&&state.collected[c][image])||[];}
@@ -48,8 +49,8 @@ function preload(src){if(!src)return;const i=new Image();i.src=src;return i;}
 function preloadAll(list){list.forEach(preload);}
 function setArt(id,src,next=[]){const im=document.getElementById(id);if(!im)return;im.classList.remove('art-ready');im.onload=()=>{im.classList.add('art-ready');next.forEach(preload);};im.onerror=()=>console.warn('Missing asset:',src);im.src=src;}
 function parseQR(raw){const s=decodeURIComponent(String(raw||"")).trim();let m=s.match(/(?:collection01\|)?(image0?[1-9]|image10)\|piece0?([1-9])/i);if(m)return{collection:"collection01",image:`image${String(m[1].replace(/\D/g,'')).padStart(2,'0')}`,piece:Number(m[2])};let c=s.match(/collection0?(\d+)/i),i=s.match(/image0?(\d+)/i),p=s.match(/piece0?(\d+)/i);if(p)return{collection:`collection${String(c?c[1]:1).padStart(2,'0')}`,image:`image${String(i?i[1]:10).padStart(2,'0')}`,piece:Number(p[1])};return null;}
-async function fetchCollection(id="collection01"){const r=await fetch(`./assets/collections/${id}/collection.json`,{cache:'no-store'});if(!r.ok)throw new Error('collection data unavailable');return r.json();}
+async function fetchCollection(id="collection01"){const r=await fetch(`./assets/collections/${id}/collection.json`,{cache:'force-cache'});if(!r.ok)throw new Error('collection data unavailable');return r.json();}
 function startRewardTransition(data){localStorage.setItem('barameelRewardTransition',JSON.stringify({startedAt:Date.now(),...data}));playRewardFrom(0);}
 document.addEventListener('pointerdown',()=>{audio();},{once:true,passive:true});
 save();
-window.BR={RUNNERS,RUNNER_NAMES,state,save,setRunner,setNickname,addPoints,collect,selected,pieces,count,hasPiece,totalCollected,setLastReward,play,selectSound,confirmSound,scanSound,errorSound,backSound,rewardSound,rewardAudio,playRewardFrom,pulse,flash,go,preload,preloadAll,setArt,parseQR,startRewardTransition,fetchCollection};
+window.BR={RUNNERS,RUNNER_NAMES,state,save,setRunner,setNickname,addPoints,collect,selected,pieces,count,hasPiece,totalCollected,setLastReward,addCheckpoint,play,selectSound,confirmSound,scanSound,errorSound,backSound,rewardSound,rewardAudio,playRewardFrom,pulse,flash,go,preload,preloadAll,setArt,parseQR,startRewardTransition,fetchCollection};

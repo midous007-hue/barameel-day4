@@ -1,20 +1,28 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>BARAMEEL RUN — ALEXANDRIA Collection</title><link rel="stylesheet" href="./styles.css"></head>
 <body><main class="collection-stage" style="--ar:954/1649">
-<img id="collectionArt" class="collection-art" src="./assets/screen06-puzzle.png" alt="ALEXANDRIA collection">
+<img id="collectionArt" class="collection-art" src="./assets/screen06-puzzle.webp" alt="ALEXANDRIA collection" fetchpriority="high" decoding="async">
 <button id="collectionBack" class="collection-back" aria-label="Back"></button>
 <select id="collectionSelect" class="collection-select" aria-label="Choose collection"><option value="collection01">ALEXANDRIA</option></select>
+
 <div id="heroGrid" class="hero-grid" aria-label="Current puzzle"></div>
-<img id="heroMaster" class="hero-master" alt="Selected collection image">
-<div id="completionRing" class="completion-ring" aria-hidden="true"></div>
-<div id="rewardText" class="reward-text"></div>
-<div id="rewardSub" class="reward-sub"></div>
-<button id="niceOne" class="nice-one" aria-label="Nice one"></button>
-<div id="thumbs" class="collection-thumbs"></div>
+<img id="heroMaster" class="hero-master" alt="Completed collection image" decoding="async">
+
+<div id="rewardText" class="reward-text" aria-live="polite"></div>
+<div id="rewardSub" class="reward-sub">POINTS</div>
+
+<button id="myRewards" class="my-rewards" aria-label="My rewards"></button>
+<button id="scanMore" class="scan-more" aria-label="Scan more"></button>
+
+<div id="thumbs" class="collection-thumbs" aria-label="Collection images"></div>
 </main>
 <script src="./app.js"></script><script>
 (async function(){
- const art=document.getElementById('collectionArt'), grid=document.getElementById('heroGrid'), master=document.getElementById('heroMaster'), thumbs=document.getElementById('thumbs'), select=document.getElementById('collectionSelect'), reward=document.getElementById('rewardText'), rewardSub=document.getElementById('rewardSub'), ring=document.getElementById('completionRing');
- const params=new URLSearchParams(location.search), requestedCollection=params.get('collection')||'collection01', requestedImage=params.get('image')||'image10';
+ const grid=document.getElementById('heroGrid'), master=document.getElementById('heroMaster'), thumbs=document.getElementById('thumbs'), select=document.getElementById('collectionSelect');
+ const reward=document.getElementById('rewardText'), rewardSub=document.getElementById('rewardSub');
+ const params=new URLSearchParams(location.search);
+ const last=JSON.parse(localStorage.getItem('barameelLastQR')||'null');
+ const requestedCollection=params.get('collection')||last?.collection||'collection01';
+ const requestedImage=params.get('image')||last?.image||'image01';
  let cfg;
  try{cfg=await BR.fetchCollection(requestedCollection)}catch(e){cfg={collectionId:'collection01',displayName:'ALEXANDRIA',imageCount:10,piecesPerImage:9,images:[]};}
  const collection=cfg.collectionId||'collection01';
@@ -22,17 +30,74 @@
  const imageById=id=>cfg.images.find(x=>x.imageId===id)||cfg.images[0];
  let selectedImage=imageById(requestedImage)||cfg.images[0];
  if(!selectedImage)return;
- function pieceStyle(piece){const col=piece.column,row=piece.row;return `background-image:url("./${selectedImage.masterFile.replace(/^assets\//,'assets/')}");background-size:300% 300%;background-position:${(col-1)*50}% ${(row-1)*50}%`;}
- function clearGrid(){grid.innerHTML='';for(let i=1;i<=9;i++){const p=selectedImage.pieces[i-1],cell=document.createElement('div');cell.className='hero-piece';cell.dataset.piece=String(i);cell.style.backgroundImage=`url("./${selectedImage.masterFile}")`;cell.style.backgroundSize='300% 300%';cell.style.backgroundPosition=`${(p.column-1)*50}% ${(p.row-1)*50}%`;if(!BR.hasPiece(collection,selectedImage.imageId,i))cell.classList.add('locked');grid.appendChild(cell);}}
- function renderMaster(){master.src=`./${selectedImage.masterFile}`;master.classList.remove('show');}
- function renderThumbs(){thumbs.innerHTML='';cfg.images.forEach((im,idx)=>{const wrap=document.createElement('button');wrap.type='button';wrap.className='collection-thumb '+(im.imageId===selectedImage.imageId?'selected':'');const image=document.createElement('img');image.src=`./${im.masterFile}`;image.alt=im.displayName;const n=document.createElement('span');n.className='thumb-count';n.textContent=`${BR.count(collection,im.imageId)}/9`;wrap.append(image,n);if(BR.count(collection,im.imageId)===0)wrap.classList.add('locked');wrap.onclick=()=>{BR.play('tap');selectedImage=im;render();};thumbs.appendChild(wrap);});}
- function render(){clearGrid();renderMaster();renderThumbs();const c=BR.count(collection,selectedImage.imageId);if(c===9){ring.classList.add('complete');setTimeout(()=>master.classList.add('show'),650);}else{ring.classList.remove('complete');}}
- function animateReward(){const tr=JSON.parse(localStorage.getItem('barameelRewardTransition')||'null');const lr=BR.state.lastReward;let amount=Number(lr&&lr.points||tr&&tr.points||0);if(!amount){reward.textContent='';rewardSub.textContent='';return;}rewardSub.textContent='POINTS EARNED';reward.classList.add('jackpot');const start=performance.now();const dur=1150;function tick(now){const t=Math.min(1,(now-start)/dur),e=1-Math.pow(1-t,3);reward.textContent='+'+Math.round(amount*e).toLocaleString()+' POINTS';if(t<1)requestAnimationFrame(tick);else{reward.textContent='+'+amount.toLocaleString()+' POINTS';setTimeout(()=>reward.classList.remove('jackpot'),500)}}requestAnimationFrame(tick);}
- select.onchange=()=>{const id=select.value;if(id!==collection){location.href=`./screen06.html?collection=${encodeURIComponent(id)}&image=image01`;}};
+
+ function thumbFile(im){return `./${im.thumbnailFile}`;}
+ function piecePosition(p){const r=Math.floor((p-1)/3),c=(p-1)%3;return `${c*50}% ${r*50}%`;}
+ function masterFile(im){return `./${im.masterFile}`;}
+ function renderHero(){
+   grid.innerHTML='';
+   const complete=BR.count(collection,selectedImage.imageId)===9;
+   for(let p=1;p<=9;p++){
+     const cell=document.createElement('div'); cell.className='hero-piece';
+     if(BR.hasPiece(collection,selectedImage.imageId,p)){
+       cell.style.backgroundImage=`url("${masterFile(selectedImage)}")`; cell.style.backgroundSize='300% 300%'; cell.style.backgroundPosition=piecePosition(p);
+     }else cell.classList.add('locked');
+     grid.appendChild(cell);
+   }
+   if(complete){
+     master.src=masterFile(selectedImage); master.classList.add('show');
+     grid.classList.add('complete-hidden');
+     requestAnimationFrame(()=>{master.classList.remove('complete-flash');void master.offsetWidth;master.classList.add('complete-flash');});
+   }else{
+     master.removeAttribute('src'); master.classList.remove('show','complete-flash'); grid.classList.remove('complete-hidden');
+   }
+ }
+ function renderThumbs(){
+   thumbs.innerHTML='';
+   cfg.images.forEach(im=>{
+     const wrap=document.createElement('button'); wrap.type='button'; wrap.className='collection-thumb '+(im.imageId===selectedImage.imageId?'selected':'');
+     const n=document.createElement('span'); n.className='thumb-number'; n.textContent=String(im.imageNumber);
+     const count=document.createElement('span'); count.className='thumb-count'; count.textContent=`${BR.count(collection,im.imageId)}/9`;
+     const tg=document.createElement('span'); tg.className='thumb-grid';
+     for(let p=1;p<=9;p++){
+       const c=document.createElement('span'); c.className='thumb-piece';
+       if(BR.hasPiece(collection,im.imageId,p)){
+         c.style.backgroundImage=`url("${thumbFile(im)}")`; c.style.backgroundSize='300% 300%'; c.style.backgroundPosition=piecePosition(p);
+       }
+       tg.appendChild(c);
+     }
+     wrap.append(n,tg,count);
+     wrap.onclick=()=>{BR.play('tap');selectedImage=im;render();};
+     thumbs.appendChild(wrap);
+   });
+ }
+ function render(){renderHero();renderThumbs();}
+
+ function animateReward(){
+   const tr=JSON.parse(localStorage.getItem('barameelRewardTransition')||'null');
+   const lr=BR.state.lastReward;
+   const amount=Number(lr?.points||tr?.points||0);
+   reward.classList.remove('jackpot');
+   if(!amount){reward.textContent='';rewardSub.textContent='POINTS';return;}
+   rewardSub.textContent='POINTS';
+   const start=performance.now(), dur=1050;
+   function tick(now){
+     const t=Math.min(1,(now-start)/dur);
+     const e=1-Math.pow(1-t,4);
+     reward.textContent='+'+Math.round(amount*e).toLocaleString();
+     if(t<1)requestAnimationFrame(tick);
+     else{
+       reward.textContent='+'+amount.toLocaleString();
+       reward.classList.remove('jackpot');void reward.offsetWidth;reward.classList.add('jackpot');
+     }
+   }
+   requestAnimationFrame(tick);
+ }
+
+ select.onchange=()=>{location.href=`./screen06.html?collection=${encodeURIComponent(select.value)}&image=image01`;};
  document.getElementById('collectionBack').onclick=()=>{BR.play('back');BR.go('./screen05.html');};
- document.getElementById('niceOne').onclick=()=>{BR.play('confirm');BR.go('./screen04.html');};
- render();animateReward();
- const tr=JSON.parse(localStorage.getItem('barameelRewardTransition')||'null');if(tr&&tr.startedAt){const elapsed=Math.max(0,(Date.now()-tr.startedAt)/1000);try{BR.playRewardFrom(Math.min(elapsed,1.5));}catch(e){}}
- art.addEventListener('load',()=>art.classList.add('art-ready'),{once:true});
+ document.getElementById('scanMore').onclick=()=>{BR.play('confirm');BR.go('./screen05.html');};
+ document.getElementById('myRewards').onclick=()=>{BR.play('tap');BR.go('./screen04.html');};
+ render(); animateReward();
 })();
 </script></body></html>
