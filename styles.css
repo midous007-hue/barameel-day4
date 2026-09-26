@@ -119,3 +119,35 @@ body{display:grid;place-items:center;padding:0;font-family:Arial,Helvetica,sans-
 .checkpoint-dots{position:absolute;left:63.4%;top:65.7%;width:28.0%;height:3.2%;display:flex;align-items:center;justify-content:space-between;padding:0 1.5%}
 .checkpoint-dot{width:8.4%;aspect-ratio:1;border:2px solid #f7ecd5;border-radius:50%;background:transparent;box-shadow:0 1px 0 rgba(0,0,0,.5)}
 .checkpoint-dot.on{background:#f7bd27;border-color:#071a20;box-shadow:0 0 7px rgba(247,189,39,.65)}
+
+/* v24 — puzzle layering / performance correction */
+.collection-art{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1;object-fit:fill;pointer-events:none}
+.collection-art img{display:block;width:100%;height:100%;object-fit:fill}
+.hero-grid{left:46.65%;top:32.35%;width:47.9%;height:21.55%;z-index:20;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px;overflow:hidden;border-radius:11px;pointer-events:none;opacity:1!important}
+.hero-piece{position:relative;min-width:0;min-height:0;overflow:hidden;border:0;padding:0;background-color:transparent;background-repeat:no-repeat;background-origin:border-box;background-clip:border-box;box-shadow:none;border-radius:4px;filter:none!important;opacity:1!important;transition:filter .16s ease}
+.hero-piece.locked{background-image:none!important}
+.hero-piece.found{background-size:300% 300%;}
+.hero-grid.complete-flash .hero-piece.found{animation:puzzlePieceFlash .38s ease-in-out 0s 3 both}
+@keyframes puzzlePieceFlash{
+  0%,100%{filter:brightness(1) saturate(1)}
+  45%{filter:brightness(1.62) saturate(1.28)}
+}
+.collection-thumbs{left:1.7%;top:69.2%;width:96.6%;height:25.9%;z-index:35;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr);column-gap:1.05%;row-gap:1.0%;pointer-events:none}
+.collection-thumb{position:relative;border:0;background:transparent;padding:0;overflow:hidden;pointer-events:auto;cursor:pointer;min-width:0;min-height:0}
+.collection-thumb .thumb-grid{position:absolute;left:9.5%;top:18.5%;width:81%;height:64.5%;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px;pointer-events:none;overflow:hidden}
+.collection-thumb .thumb-piece{display:block;min-width:0;min-height:0;overflow:hidden;padding:0;background-color:transparent;background-repeat:no-repeat;background-size:300% 300%;background-position:center;opacity:1;filter:none}
+.collection-thumb .thumb-piece:not(.found){background-image:none!important}
+.collection-thumb.selected .thumb-grid{filter:drop-shadow(0 0 2px rgba(247,189,39,.35))}
+.collection-thumb .thumb-count{right:6.8%;bottom:3.7%;min-width:30%;padding:1px 3px;border-radius:4px;background:rgba(7,20,25,.88);color:#f7ecd5;font-family:"Arial Black",Impact,sans-serif;font-size:clamp(9px,2.4vw,22px);font-weight:900;text-shadow:2px 2px 0 #000;line-height:1.05;text-align:center;pointer-events:none}
+.collection-thumb.complete .thumb-piece.found{animation:puzzlePieceFlash .38s ease-in-out 0s 3 both}
+.reward-text.jackpot{animation:jackpotFinal .72s cubic-bezier(.2,.9,.25,1) both}
+@keyframes jackpotFinal{0%{transform:scale(1)}55%{transform:scale(1.18);filter:brightness(1.45)}100%{transform:scale(1)}}
+@media (max-width:600px){
+  .collection-art img{content-visibility:auto}
+  .hero-grid{gap:2px}
+  .collection-thumb .thumb-grid{gap:1.5px}
+}
+
+/* Responsive image wrappers */
+.stage>picture{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage>picture img{width:100%;height:100%;object-fit:fill;display:block}

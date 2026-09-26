@@ -1,103 +1,150 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>BARAMEEL RUN — ALEXANDRIA Collection</title><link rel="stylesheet" href="./styles.css"></head>
-<body><main class="collection-stage" style="--ar:954/1649">
-<img id="collectionArt" class="collection-art" src="./assets/screen06-puzzle.webp" alt="ALEXANDRIA collection" fetchpriority="high" decoding="async">
-<button id="collectionBack" class="collection-back" aria-label="Back"></button>
-<select id="collectionSelect" class="collection-select" aria-label="Choose collection"><option value="collection01">ALEXANDRIA</option></select>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>BARAMEEL RUN — ALEXANDRIA Collection</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<main class="collection-stage" style="--ar:954/1649">
+  <picture class="collection-art">
+    <source media="(max-width:600px)" srcset="./assets/screen06-puzzle-mobile.webp">
+    <img id="collectionArt" src="./assets/screen06-puzzle.webp" alt="ALEXANDRIA collection" fetchpriority="high" decoding="async">
+  </picture>
 
-<div id="heroGrid" class="hero-grid" aria-label="Current puzzle"></div>
-<img id="heroMaster" class="hero-master" alt="Completed collection image" decoding="async">
+  <button id="collectionBack" class="collection-back" aria-label="Back"></button>
+  <select id="collectionSelect" class="collection-select" aria-label="Choose collection">
+    <option value="collection01">ALEXANDRIA</option>
+  </select>
 
-<div id="rewardText" class="reward-text" aria-live="polite"></div>
-<div id="rewardSub" class="reward-sub">POINTS</div>
+  <!-- The printed 3x3 frame remains part of the artwork. Only discovered pieces are layered inside it. -->
+  <div id="heroGrid" class="hero-grid" aria-label="Current puzzle"></div>
 
-<button id="myRewards" class="my-rewards" aria-label="My rewards"></button>
-<button id="scanMore" class="scan-more" aria-label="Scan more"></button>
+  <div id="rewardText" class="reward-text" aria-live="polite"></div>
+  <div id="rewardSub" class="reward-sub">POINTS EARNED</div>
 
-<div id="thumbs" class="collection-thumbs" aria-label="Collection images"></div>
+  <button id="myRewards" class="my-rewards" aria-label="My rewards"></button>
+  <button id="scanMore" class="scan-more" aria-label="Scan more"></button>
+
+  <!-- The printed 1–10 cards, numbers and outer frames remain in the artwork. Only discovered pieces are layered inside. -->
+  <div id="thumbs" class="collection-thumbs" aria-label="Collection images"></div>
 </main>
-<script src="./app.js"></script><script>
+
+<script src="./app.js"></script>
+<script>
 (async function(){
- const grid=document.getElementById('heroGrid'), master=document.getElementById('heroMaster'), thumbs=document.getElementById('thumbs'), select=document.getElementById('collectionSelect');
- const reward=document.getElementById('rewardText'), rewardSub=document.getElementById('rewardSub');
- const params=new URLSearchParams(location.search);
- const last=JSON.parse(localStorage.getItem('barameelLastQR')||'null');
- const requestedCollection=params.get('collection')||last?.collection||'collection01';
- const requestedImage=params.get('image')||last?.image||'image01';
- let cfg;
- try{cfg=await BR.fetchCollection(requestedCollection)}catch(e){cfg={collectionId:'collection01',displayName:'ALEXANDRIA',imageCount:10,piecesPerImage:9,images:[]};}
- const collection=cfg.collectionId||'collection01';
- select.value=collection;
- const imageById=id=>cfg.images.find(x=>x.imageId===id)||cfg.images[0];
- let selectedImage=imageById(requestedImage)||cfg.images[0];
- if(!selectedImage)return;
+  const grid=document.getElementById('heroGrid');
+  const thumbs=document.getElementById('thumbs');
+  const select=document.getElementById('collectionSelect');
+  const reward=document.getElementById('rewardText');
+  const rewardSub=document.getElementById('rewardSub');
+  const params=new URLSearchParams(location.search);
+  const last=JSON.parse(localStorage.getItem('barameelLastQR')||'null');
+  const requestedCollection=params.get('collection')||last?.collection||'collection01';
+  const requestedImage=params.get('image')||last?.image||'image01';
 
- function thumbFile(im){return `./${im.thumbnailFile}`;}
- function piecePosition(p){const r=Math.floor((p-1)/3),c=(p-1)%3;return `${c*50}% ${r*50}%`;}
- function masterFile(im){return `./${im.masterFile}`;}
- function renderHero(){
-   grid.innerHTML='';
-   const complete=BR.count(collection,selectedImage.imageId)===9;
-   for(let p=1;p<=9;p++){
-     const cell=document.createElement('div'); cell.className='hero-piece';
-     if(BR.hasPiece(collection,selectedImage.imageId,p)){
-       cell.style.backgroundImage=`url("${masterFile(selectedImage)}")`; cell.style.backgroundSize='300% 300%'; cell.style.backgroundPosition=piecePosition(p);
-     }else cell.classList.add('locked');
-     grid.appendChild(cell);
-   }
-   if(complete){
-     master.src=masterFile(selectedImage); master.classList.add('show');
-     grid.classList.add('complete-hidden');
-     requestAnimationFrame(()=>{master.classList.remove('complete-flash');void master.offsetWidth;master.classList.add('complete-flash');});
-   }else{
-     master.removeAttribute('src'); master.classList.remove('show','complete-flash'); grid.classList.remove('complete-hidden');
-   }
- }
- function renderThumbs(){
-   thumbs.innerHTML='';
-   cfg.images.forEach(im=>{
-     const wrap=document.createElement('button'); wrap.type='button'; wrap.className='collection-thumb '+(im.imageId===selectedImage.imageId?'selected':'');
-     const n=document.createElement('span'); n.className='thumb-number'; n.textContent=String(im.imageNumber);
-     const count=document.createElement('span'); count.className='thumb-count'; count.textContent=`${BR.count(collection,im.imageId)}/9`;
-     const tg=document.createElement('span'); tg.className='thumb-grid';
-     for(let p=1;p<=9;p++){
-       const c=document.createElement('span'); c.className='thumb-piece';
-       if(BR.hasPiece(collection,im.imageId,p)){
-         c.style.backgroundImage=`url("${thumbFile(im)}")`; c.style.backgroundSize='300% 300%'; c.style.backgroundPosition=piecePosition(p);
-       }
-       tg.appendChild(c);
-     }
-     wrap.append(n,tg,count);
-     wrap.onclick=()=>{BR.play('tap');selectedImage=im;render();};
-     thumbs.appendChild(wrap);
-   });
- }
- function render(){renderHero();renderThumbs();}
+  let cfg;
+  try{cfg=await BR.fetchCollection(requestedCollection)}
+  catch(e){cfg={collectionId:'collection01',displayName:'ALEXANDRIA',imageCount:10,piecesPerImage:9,images:[]};}
+  const collection=cfg.collectionId||'collection01';
+  select.value=collection;
+  const imageById=id=>cfg.images.find(x=>x.imageId===id)||cfg.images[0];
+  let selectedImage=imageById(requestedImage)||cfg.images[0];
+  if(!selectedImage)return;
 
- function animateReward(){
-   const tr=JSON.parse(localStorage.getItem('barameelRewardTransition')||'null');
-   const lr=BR.state.lastReward;
-   const amount=Number(lr?.points||tr?.points||0);
-   reward.classList.remove('jackpot');
-   if(!amount){reward.textContent='';rewardSub.textContent='POINTS';return;}
-   rewardSub.textContent='POINTS';
-   const start=performance.now(), dur=1050;
-   function tick(now){
-     const t=Math.min(1,(now-start)/dur);
-     const e=1-Math.pow(1-t,4);
-     reward.textContent='+'+Math.round(amount*e).toLocaleString();
-     if(t<1)requestAnimationFrame(tick);
-     else{
-       reward.textContent='+'+amount.toLocaleString();
-       reward.classList.remove('jackpot');void reward.offsetWidth;reward.classList.add('jackpot');
-     }
-   }
-   requestAnimationFrame(tick);
- }
+  const thumbFile=im=>`./${im.thumbnailFile}`;
+  const piecePosition=p=>`${((p-1)%3)*50}% ${Math.floor((p-1)/3)*50}%`;
+  const masterFile=im=>`./${im.masterFile}`;
 
- select.onchange=()=>{location.href=`./screen06.html?collection=${encodeURIComponent(select.value)}&image=image01`;};
- document.getElementById('collectionBack').onclick=()=>{BR.play('back');BR.go('./screen05.html');};
- document.getElementById('scanMore').onclick=()=>{BR.play('confirm');BR.go('./screen05.html');};
- document.getElementById('myRewards').onclick=()=>{BR.play('tap');BR.go('./screen04.html');};
- render(); animateReward();
+  function pieceStyle(el, im, p){
+    el.style.backgroundImage=`url("${thumbFile(im)}")`;
+    el.style.backgroundSize='300% 300%';
+    el.style.backgroundRepeat='no-repeat';
+    el.style.backgroundPosition=piecePosition(p);
+  }
+
+  function renderHero(){
+    grid.innerHTML='';
+    grid.classList.remove('complete','complete-flash');
+    const complete=BR.count(collection,selectedImage.imageId)===9;
+
+    for(let p=1;p<=9;p++){
+      const cell=document.createElement('div');
+      cell.className='hero-piece'+(BR.hasPiece(collection,selectedImage.imageId,p)?' found':' locked');
+      if(BR.hasPiece(collection,selectedImage.imageId,p)) pieceStyle(cell,selectedImage,p);
+      grid.appendChild(cell);
+    }
+
+    if(complete){
+      // Keep the 3x3 structure visible. Never swap to a full master image.
+      requestAnimationFrame(()=>{
+        grid.classList.add('complete');
+        void grid.offsetWidth;
+        grid.classList.add('complete-flash');
+      });
+    }
+  }
+
+  function renderThumbs(){
+    thumbs.innerHTML='';
+    cfg.images.forEach(im=>{
+      const wrap=document.createElement('button');
+      wrap.type='button';
+      wrap.className='collection-thumb '+(im.imageId===selectedImage.imageId?'selected':'');
+      const tg=document.createElement('span');
+      tg.className='thumb-grid';
+      for(let p=1;p<=9;p++){
+        const c=document.createElement('span');
+        c.className='thumb-piece'+(BR.hasPiece(collection,im.imageId,p)?' found':'');
+        if(BR.hasPiece(collection,im.imageId,p)) pieceStyle(c,im,p);
+        tg.appendChild(c);
+      }
+      const count=document.createElement('span');
+      count.className='thumb-count';
+      count.textContent=`${BR.count(collection,im.imageId)}/9`;
+      wrap.append(tg,count);
+      wrap.onclick=()=>{BR.play('tap');selectedImage=im;render();};
+      thumbs.appendChild(wrap);
+    });
+  }
+
+  function render(){renderHero();renderThumbs();}
+
+  function animateReward(){
+    const tr=JSON.parse(localStorage.getItem('barameelRewardTransition')||'null');
+    const lr=BR.state.lastReward;
+    const amount=Number(lr?.points||tr?.points||0);
+    reward.classList.remove('jackpot');
+    rewardSub.textContent='POINTS EARNED';
+    if(!amount){reward.textContent='';return;}
+
+    const start=performance.now(), dur=820;
+    function tick(now){
+      const t=Math.min(1,(now-start)/dur);
+      const e=1-Math.pow(1-t,4);
+      reward.textContent='+'+Math.round(amount*e).toLocaleString('en-US');
+      if(t<1)requestAnimationFrame(tick);
+      else{
+        reward.textContent='+'+amount.toLocaleString('en-US');
+        reward.classList.remove('jackpot');
+        void reward.offsetWidth;
+        reward.classList.add('jackpot');
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  select.onchange=()=>{
+    location.href=`./screen06.html?collection=${encodeURIComponent(select.value)}&image=image01`;
+  };
+  document.getElementById('collectionBack').onclick=()=>{BR.play('back');BR.go('./screen05.html');};
+  document.getElementById('scanMore').onclick=()=>{BR.play('confirm');BR.go('./screen05.html');};
+  document.getElementById('myRewards').onclick=()=>{BR.play('tap');BR.go('./screen04.html');};
+
+  render();
+  animateReward();
 })();
-</script></body></html>
+</script>
+</body>
+</html>
