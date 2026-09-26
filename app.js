@@ -5,15 +5,11 @@ let state;
 try{state=JSON.parse(localStorage.getItem("barameelRunState")||"null")||JSON.parse(JSON.stringify(defaults));}
 catch(e){state=JSON.parse(JSON.stringify(defaults));}
 if(!state.collected)state.collected={};
-/* Migrate the old single-image collection format: old piece scans belonged to image10. */
 if(Array.isArray(state.collected.collection01)){
   const old=state.collected.collection01; state.collected.collection01={image10:old};
 }
 if(!state.collected.collection01)state.collected.collection01={};
-if(typeof state.points!=="number")state.points=0;
-if(typeof state.marks!=="number")state.marks=0;
-if(typeof state.weeklyPoints!=="number")state.weeklyPoints=0;
-if(typeof state.checkpoints!=="number")state.checkpoints=0;
+for(const k of ["points","marks","weeklyPoints","checkpoints"]){if(typeof state[k]!=="number")state[k]=0;}
 function save(){localStorage.setItem("barameelRunState",JSON.stringify(state));}
 function setRunner(r){if(RUNNERS.includes(r)){state.runner=r;save();}}
 function setNickname(n){state.nickname=(n||"").slice(0,24);save();}
@@ -27,7 +23,6 @@ function hasPiece(c,image,p){return pieces(c,image).includes(String(p).padStart(
 function totalCollected(c){return Object.values(state.collected[c]||{}).reduce((n,a)=>n+(Array.isArray(a)?a.length:0),0);}
 function setLastReward(data){state.lastReward=data;save();}
 
-/* BARAMEEL RUN arcade sound language. */
 let audioCtx,master,compressor;
 function audio(){audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();if(!master){master=audioCtx.createGain();master.gain.value=.95;compressor=audioCtx.createDynamicsCompressor();compressor.threshold.value=-18;compressor.knee.value=8;compressor.ratio.value=8;compressor.attack.value=.003;compressor.release.value=.12;master.connect(compressor);compressor.connect(audioCtx.destination);}if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx;}
 function tone(freq,dur=.11,type='square',gain=.32,when=0,slide=0){const c=audio(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,c.currentTime+when);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(40,freq+slide),c.currentTime+when+dur);g.gain.setValueAtTime(.0001,c.currentTime+when);g.gain.exponentialRampToValueAtTime(Math.max(.0003,gain),c.currentTime+when+.008);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+when+dur);o.connect(g);g.connect(master);o.start(c.currentTime+when);o.stop(c.currentTime+when+dur+.025);}
@@ -45,12 +40,12 @@ function playRewardFrom(startOffset=0){const a=rewardAudio();a.currentTime=Math.
 function pulse(el,cls='ui-pulse'){if(!el)return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls);}
 function flash(){document.body.classList.remove('arcade-flash');void document.body.offsetWidth;document.body.classList.add('arcade-flash');}
 function go(url){document.body.classList.add('page-leave');setTimeout(()=>location.href=url,180);}
-function preload(src){if(!src)return;const i=new Image();i.src=src;return i;}
+function preload(src){if(!src)return;const i=new Image();i.decoding='async';i.src=src;return i;}
 function preloadAll(list){list.forEach(preload);}
 function setArt(id,src,next=[]){const im=document.getElementById(id);if(!im)return;im.classList.remove('art-ready');im.onload=()=>{im.classList.add('art-ready');next.forEach(preload);};im.onerror=()=>console.warn('Missing asset:',src);im.src=src;}
-function parseQR(raw){const s=decodeURIComponent(String(raw||"")).trim();let m=s.match(/(?:collection01\|)?(image0?[1-9]|image10)\|piece0?([1-9])/i);if(m)return{collection:"collection01",image:`image${String(m[1].replace(/\D/g,'')).padStart(2,'0')}`,piece:Number(m[2])};let c=s.match(/collection0?(\d+)/i),i=s.match(/image0?(\d+)/i),p=s.match(/piece0?(\d+)/i);if(p)return{collection:`collection${String(c?c[1]:1).padStart(2,'0')}`,image:`image${String(i?i[1]:10).padStart(2,'0')}`,piece:Number(p[1])};return null;}
-async function fetchCollection(id="collection01"){const r=await fetch(`./assets/collections/${id}/collection.json`,{cache:'force-cache'});if(!r.ok)throw new Error('collection data unavailable');return r.json();}
+function parseQR(raw){const s=decodeURIComponent(String(raw||"")).trim();let m=s.match(/(?:collection0?1[|_-])?(image0?[1-9]|image10)[|_-]piece0?([1-9])/i);if(m)return{collection:"collection01",image:`image${String(m[1].replace(/\D/g,'')).padStart(2,'0')}`,piece:Number(m[2])};let c=s.match(/collection0?(\d+)/i),i=s.match(/image0?(\d+)/i),p=s.match(/piece0?(\d+)/i);if(p)return{collection:`collection${String(c?c[1]:1).padStart(2,'0')}`,image:`image${String(i?i[1]:10).padStart(2,'0')}`,piece:Number(p[1])};return null;}
+async function fetchCollection(id="collection01"){const r=await fetch(`./assets/collections/${id}/collection.json`,{cache:'no-store'});if(!r.ok)throw new Error('collection data unavailable');return r.json();}
 function startRewardTransition(data){localStorage.setItem('barameelRewardTransition',JSON.stringify({startedAt:Date.now(),...data}));playRewardFrom(0);}
 document.addEventListener('pointerdown',()=>{audio();},{once:true,passive:true});
 save();
-window.BR={RUNNERS,RUNNER_NAMES,state,save,setRunner,setNickname,addPoints,collect,selected,pieces,count,hasPiece,totalCollected,setLastReward,addCheckpoint,play,selectSound,confirmSound,scanSound,errorSound,backSound,rewardSound,rewardAudio,playRewardFrom,pulse,flash,go,preload,preloadAll,setArt,parseQR,startRewardTransition,fetchCollection};
+window.BR={RUNNERS,RUNNER_NAMES,state,save,setRunner,setNickname,addPoints,addCheckpoint,collect,selected,pieces,count,hasPiece,totalCollected,setLastReward,play,selectSound,confirmSound,scanSound,errorSound,backSound,rewardSound,rewardAudio,playRewardFrom,pulse,flash,go,preload,preloadAll,setArt,parseQR,startRewardTransition,fetchCollection};

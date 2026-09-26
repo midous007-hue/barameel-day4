@@ -1,136 +1,90 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>BARAMEEL RUN — ALEXANDRIA Collection</title>
-<link rel="preload" as="image" href="./assets/screen06-puzzle.webp" fetchpriority="high">
-<link rel="stylesheet" href="./styles.css">
-</head>
-<body>
-<main class="collection-stage" style="--ar:954/1649">
-  <picture class="collection-art">
-    <source media="(max-width:600px)" srcset="./assets/screen06-puzzle-mobile.webp">
-    <img id="collectionArt" src="./assets/screen06-puzzle.webp" alt="ALEXANDRIA collection" fetchpriority="high" decoding="async">
-  </picture>
-  <button id="collectionBack" class="collection-back" aria-label="Back"></button>
-  <select id="collectionSelect" class="collection-select" aria-label="Choose collection"><option value="collection01">ALEXANDRIA</option></select>
-
-  <!-- The printed board, dividers and card frames stay in the approved artwork.
-       Only QR-discovered puzzle pieces are rendered as live layers. -->
-  <div id="heroGrid" class="hero-grid" aria-label="Current puzzle"></div>
-  <div id="rewardText" class="reward-text" aria-live="polite"></div>
-  <div id="rewardSub" class="reward-sub">POINTS EARNED</div>
-  <button id="myRewards" class="my-rewards" aria-label="My rewards"></button>
-  <button id="scanMore" class="scan-more" aria-label="Scan more"></button>
-  <div id="thumbs" class="collection-thumbs" aria-label="Collection images"></div>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>BARAMEEL RUN — ALEXANDRIA Collection</title><link rel="stylesheet" href="./styles.css"></head>
+<body><main class="collection-stage" style="--ar:954/1649">
+<img id="collectionArt" class="collection-art" src="./assets/screen06-puzzle.webp" alt="ALEXANDRIA collection" decoding="async" fetchpriority="high">
+<button id="collectionBack" class="collection-back" aria-label="Back"></button>
+<select id="collectionSelect" class="collection-select" aria-label="Choose collection"><option value="collection01">ALEXANDRIA</option></select>
+<div id="heroGrid" class="hero-grid" aria-label="Current puzzle"></div>
+<img id="heroMaster" class="hero-master" alt="Completed collection image" decoding="async">
+<div id="rewardCover" class="reward-cover" aria-hidden="true"></div>
+<div id="rewardText" class="reward-text" aria-live="polite"></div>
+<div id="rewardSub" class="reward-sub"></div>
+<button id="myRewards" class="my-rewards" aria-label="My rewards"></button>
+<button id="scanMore" class="scan-more" aria-label="Scan more"></button>
+<div id="thumbs" class="collection-thumbs" aria-label="Collection images"></div>
 </main>
-<script src="./app.js"></script>
-<script>
+<script src="./app.js"></script><script>
 (async function(){
-  const grid=document.getElementById('heroGrid');
-  const thumbs=document.getElementById('thumbs');
-  const select=document.getElementById('collectionSelect');
-  const reward=document.getElementById('rewardText');
-  const rewardSub=document.getElementById('rewardSub');
-  const params=new URLSearchParams(location.search);
-  const last=JSON.parse(localStorage.getItem('barameelLastQR')||'null');
-  const requestedCollection=params.get('collection')||last?.collection||'collection01';
-  const requestedImage=params.get('image')||last?.image||'image01';
-
-  let cfg;
-  try{cfg=await BR.fetchCollection(requestedCollection)}catch(e){
-    console.error(e);
-    cfg={collectionId:'collection01',displayName:'ALEXANDRIA',imageCount:10,piecesPerImage:9,images:[]};
-  }
-  const collection=cfg.collectionId||'collection01';
-  select.value=collection;
-  const imageById=id=>cfg.images.find(x=>x.imageId===id)||cfg.images[0];
-  let selectedImage=imageById(requestedImage)||cfg.images[0];
-  if(!selectedImage)return;
-
-  const sourceFile=im=>`./${im.thumbnailFile}`;
-  const piecePosition=p=>`${((p-1)%3)*50}% ${Math.floor((p-1)/3)*50}%`;
-
-  function applyPieceStyle(el,im,p){
-    el.style.backgroundImage=`url("${sourceFile(im)}")`;
-    el.style.backgroundSize='300% 300%';
-    el.style.backgroundRepeat='no-repeat';
-    el.style.backgroundPosition=piecePosition(p);
-  }
-
-  function renderHero(){
-    grid.innerHTML='';
-    grid.classList.remove('complete','complete-flash');
-    const complete=BR.count(collection,selectedImage.imageId)===9;
-    for(let p=1;p<=9;p++){
-      const found=BR.hasPiece(collection,selectedImage.imageId,p);
-      const cell=document.createElement('div');
-      cell.className='hero-piece '+(found?'found':'locked');
-      if(found)applyPieceStyle(cell,selectedImage,p);
-      grid.appendChild(cell);
-    }
-    if(complete){
-      requestAnimationFrame(()=>{
-        grid.classList.add('complete');
-        void grid.offsetWidth;
-        grid.classList.add('complete-flash');
-      });
-    }
-  }
-
-  function renderThumbs(){
-    thumbs.innerHTML='';
-    cfg.images.forEach(im=>{
-      const wrap=document.createElement('button');
-      wrap.type='button';
-      wrap.className='collection-thumb '+(im.imageId===selectedImage.imageId?'selected':'');
-      const tg=document.createElement('span'); tg.className='thumb-grid';
-      for(let p=1;p<=9;p++){
-        const found=BR.hasPiece(collection,im.imageId,p);
-        const c=document.createElement('span');
-        c.className='thumb-piece '+(found?'found':'locked');
-        if(found)applyPieceStyle(c,im,p);
-        tg.appendChild(c);
-      }
-      const count=document.createElement('span');
-      count.className='thumb-count';
-      count.textContent=`${BR.count(collection,im.imageId)}/9`;
-      wrap.append(tg,count);
-      wrap.onclick=()=>{BR.play('tap');selectedImage=im;renderHero();renderThumbs();};
-      thumbs.appendChild(wrap);
-    });
-  }
-
-  function animateReward(){
-    const tr=JSON.parse(localStorage.getItem('barameelRewardTransition')||'null');
-    const lr=BR.state.lastReward;
-    const amount=Number(lr?.points||tr?.points||0);
-    reward.classList.remove('jackpot');
-    rewardSub.textContent='POINTS EARNED';
-    if(!amount){reward.textContent='';return;}
-    const start=performance.now(),dur=780;
-    function tick(now){
-      const t=Math.min(1,(now-start)/dur),e=1-Math.pow(1-t,4);
-      reward.textContent='+'+Math.round(amount*e).toLocaleString('en-US');
-      if(t<1)requestAnimationFrame(tick);
-      else{
-        reward.textContent='+'+amount.toLocaleString('en-US');
-        reward.classList.remove('jackpot'); void reward.offsetWidth; reward.classList.add('jackpot');
-      }
-    }
-    requestAnimationFrame(tick);
-  }
-
-  select.onchange=()=>location.href=`./screen06.html?collection=${encodeURIComponent(select.value)}&image=image01`;
-  document.getElementById('collectionBack').onclick=()=>{BR.play('back');BR.go('./screen05.html');};
-  document.getElementById('scanMore').onclick=()=>{BR.play('confirm');BR.go('./screen05.html');};
-  document.getElementById('myRewards').onclick=()=>{BR.play('tap');BR.go('./screen04.html');};
-
-  renderHero();
-  renderThumbs();
-  animateReward();
+ const grid=document.getElementById('heroGrid'),master=document.getElementById('heroMaster'),thumbs=document.getElementById('thumbs'),select=document.getElementById('collectionSelect'),reward=document.getElementById('rewardText'),rewardSub=document.getElementById('rewardSub');
+ const params=new URLSearchParams(location.search),requestedCollection=params.get('collection')||'collection01',requestedImage=params.get('image')||'image01';
+ let cfg;
+ try{cfg=await BR.fetchCollection(requestedCollection)}catch(e){cfg={collectionId:'collection01',displayName:'ALEXANDRIA',imageCount:10,piecesPerImage:9,images:[]};}
+ const collection=cfg.collectionId||'collection01';
+ select.value=collection;
+ const imageById=id=>cfg.images.find(x=>x.imageId===id)||cfg.images[0];
+ let selectedImage=imageById(requestedImage)||cfg.images[0];
+ if(!selectedImage)return;
+ let completionToken=0;
+ const cropStyle=(piece,src)=>({backgroundImage:`url("./${src}")`,backgroundSize:'300% 300%',backgroundPosition:`${(piece.column-1)*50}% ${(piece.row-1)*50}%`});
+ function makePiece(piece,found,small=false){
+   const cell=document.createElement('div');cell.className='mosaic-piece '+(found?'found':'locked');
+   Object.assign(cell.style,cropStyle(piece,small?selectedImage.thumbnailFile:selectedImage.masterFile));
+   if(found)cell.setAttribute('aria-hidden','false'); else cell.setAttribute('aria-hidden','true');
+   return cell;
+ }
+ function renderHero(){
+   grid.classList.remove('complete-flash');
+   grid.innerHTML='';
+   const c=BR.count(collection,selectedImage.imageId);
+   for(let i=1;i<=9;i++){const p=selectedImage.pieces[i-1];grid.appendChild(makePiece(p,BR.hasPiece(collection,selectedImage.imageId,i),false));}
+   master.classList.remove('show');
+   const justCompleted=!!(BR.state.lastReward&&BR.state.lastReward.collection===collection&&BR.state.lastReward.image===selectedImage.imageId&&BR.state.lastReward.completed);
+   if(c===9){
+     master.src=`./${selectedImage.masterFile}`;
+     completionToken++;
+     const token=completionToken;
+     // Three quick image-only flashes, then the 9 separators disappear and the master locks in.
+     if(justCompleted)requestAnimationFrame(()=>grid.classList.add('complete-flash'));
+     const revealDelay=justCompleted?1450:50;
+     setTimeout(()=>{if(token===completionToken){master.classList.add('show');grid.classList.add('completed-hidden');}},revealDelay);
+     if(justCompleted)setTimeout(()=>{if(BR.state.lastReward){BR.state.lastReward.completed=false;BR.save();}},1700);
+   }else{grid.classList.remove('completed-hidden');master.removeAttribute('src');}
+ }
+ function renderThumbs(){
+   thumbs.innerHTML='';
+   cfg.images.forEach(im=>{
+     const wrap=document.createElement('button');wrap.type='button';wrap.className='collection-thumb '+(im.imageId===selectedImage.imageId?'selected':'');
+     const n=document.createElement('span');n.className='thumb-count';n.textContent=`${BR.count(collection,im.imageId)}/9`;
+     const mosaic=document.createElement('span');mosaic.className='thumb-mosaic';
+     for(let i=1;i<=9;i++){
+       const p=im.pieces[i-1],found=BR.hasPiece(collection,im.imageId,i),cell=document.createElement('span');cell.className='thumb-piece '+(found?'found':'locked');
+       cell.style.backgroundImage=`url("./${im.thumbnailFile}")`;cell.style.backgroundSize='300% 300%';cell.style.backgroundPosition=`${(p.column-1)*50}% ${(p.row-1)*50}%`;mosaic.appendChild(cell);
+     }
+     wrap.append(mosaic,n);
+     wrap.onclick=()=>{BR.play('tap');selectedImage=im;renderHero();renderThumbs();};
+     thumbs.appendChild(wrap);
+   });
+ }
+ function render(){renderHero();renderThumbs();}
+ function animateReward(){
+   const tr=JSON.parse(localStorage.getItem('barameelRewardTransition')||'null');
+   const lr=BR.state.lastReward;const amount=Number(lr&&lr.points||tr&&tr.points||0);
+   rewardSub.textContent='';
+   if(!amount){reward.textContent='';return;}
+   reward.classList.remove('jackpot');void reward.offsetWidth;
+   const start=performance.now(),dur=1150;
+   function tick(now){
+     const t=Math.min(1,(now-start)/dur),e=1-Math.pow(1-t,3);
+     reward.textContent='+'+Math.round(amount*e).toLocaleString()+' POINTS';
+     if(t<1)requestAnimationFrame(tick);
+     else{reward.textContent='+'+amount.toLocaleString()+' POINTS';reward.classList.add('jackpot');setTimeout(()=>reward.classList.remove('jackpot'),650);}
+   }
+   requestAnimationFrame(tick);
+ }
+ select.onchange=()=>{const id=select.value;if(id!==collection)location.href=`./screen06.html?collection=${encodeURIComponent(id)}&image=image01`;};
+ document.getElementById('collectionBack').onclick=()=>{BR.play('back');BR.go('./screen05.html');};
+ document.getElementById('myRewards').onclick=()=>{BR.play('tap');BR.go('./screen04.html');};
+ document.getElementById('scanMore').onclick=()=>{BR.play('scan');BR.go('./screen05.html');};
+ render();animateReward();
+ const tr=JSON.parse(localStorage.getItem('barameelRewardTransition')||'null');if(tr&&tr.startedAt){const elapsed=Math.max(0,(Date.now()-tr.startedAt)/1000);try{BR.playRewardFrom(Math.min(elapsed,1.5));}catch(e){}}
 })();
-</script>
-</body>
-</html>
+</script></body></html>

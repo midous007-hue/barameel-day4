@@ -1,0 +1,39 @@
+BARAMEEL RUN v23 — EXACT GITHUB UPLOAD MAP
+
+REPLACE IN REPOSITORY ROOT:
+index.html
+screen04.html
+screen05.html
+screen06.html
+app.js
+styles.css
+sw.js
+
+ADD / REPLACE:
+assets/screen01-start.webp
+assets/screen06-puzzle.webp
+assets/collections/collection01/collection.json
+
+ADD FOLDER:
+assets/collections/collection01/thumbs/
+  image01-thumb.webp
+  image02-thumb.webp
+  image03-thumb.webp
+  image04-thumb.webp
+  image05-thumb.webp
+  image06-thumb.webp
+  image07-thumb.webp
+  image08-thumb.webp
+  image09-thumb.webp
+  image10-thumb.webp
+
+KEEP AS-IS:
+assets/collections/collection01/masters/image01-master.png ... image10-master.png
+assets/collections/collection01/qr-codes/* (all 90 QR files)
+all screen02/screen03/screen04 runner images
+assets/screen05-scanner.png
+
+OPTIONAL DELETE:
+assets/screen06-puzzle.png.png
+
+DO NOT DELETE assets/screen06-puzzle.png just because it is old; v23 simply stops using it.
